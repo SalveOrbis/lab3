@@ -1,0 +1,12 @@
+#
+# Functions that are not commented are tested.
+#
+bi_add
+bi_sub
+bi_mul
+bi_and
+#bi_or
+#bi_xor
+#bi_cmp
+#bi_bitsize
+#bi_tstbit
