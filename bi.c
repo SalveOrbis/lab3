@@ -33,7 +33,6 @@
 int verbose = 0;
 void eget_test(void);
 
-
 /**
  * Print error message to stderr.
  */
@@ -210,6 +209,10 @@ void bi_test_tstbit() {
 
     for (j = 0; j < i + 10; j++) {
       if (bi_tstbit(a, j) != mpz_tstbit(x, j)) {
+        fprintf(stderr, "%d\n", bi_tstbit(a, j));
+        fprintf(stderr, "%d\n", mpz_tstbit(x, j));
+        fprintf(stderr, "antal bitar: %d biten som läses fel: %d \n", i, j);
+
         error("Wrong bits!");
       }
     }
@@ -486,101 +489,159 @@ void runtests() {
 }
 
 void eget_test(void) {
-  // bi_t a ;
-  // bi_init (a);
-  // bi_t b;
-  // bi_init (b);
-  //TESTA RAND
+  bi_t a ;
+  bi_init (a);
+  bi_t b;
+  bi_init (b);
+  bi_t res;
+  bi_init(res);
+  
+  // TESTA RAND
 
   // for (int i = 1; i < 100; i++){
   //   bi_rand(a, i );
   //   // bi_printf(a);
   //   // printf("\n");
    
-  //   int antal_bitar = bi_bitsize(a);
-  //   char *s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
-        
-  //   bi_export(s, a);
-  //   bi_import (b, s);
-  //   if (bi_cmp(a,b) != 0) {
-  //     printf("Det blev fel:  a:\n ");
+  //   if ( i  != bi_bitsize(a)) {
+  //     printf("Fel antal bitar! rätt antal: %d, bi_bitsize: %d\n", i, bi_bitsize(a));
   //     bi_printf(a);
-  //     printf("\nhex \n %s \n",s);
-  //     printf(" b:\n ");
-  //     bi_printf(b);
   //     printf("\n");
   //   }
 
+
+    // int antal_bitar = bi_bitsize(a);
+    // char *s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
+        
+    // bi_export(s, a);
+    // bi_import (b, s);
+    // if (bi_cmp(a,b) != 0) {
+    //   printf("Det blev fel: \na:\n ");
+    //   bi_printf(a);
+    //   printf("\nhex: \n %s \n",s);
+    //   printf(" b:\n ");
+    //   bi_printf(b);
+    //   printf("\n");
+    //   printf("sign a: %d, sign b: %d\n",a->sign, b->sign );
+    // }
+
   // }
-  //SLUT TESTA RAND
+  // SLUT TESTA RAND
 
-  //TESTA CONVERT
-  bi_t a;
-   bi_t b;
-   mpz_t x;
-   int i;
+  // //TESTA CONVERT
+  // bi_t a;
+  //  bi_t b;
+  //  mpz_t x;
+  //  int i;
 
-   bi_init(a);
-   bi_init(b);
-   mpz_init(x);
+  //  bi_init(a);
+  //  bi_init(b);
+  //  mpz_init(x);
 
-    for (i = 1; i < 10001; i++) {
+  //   for (i = 1; i < 10001; i++) {
 
-      bi_rand(a, i);
-      bi_to_mpz(x, a);
-      mpz_to_bi(b, x);
+  //     bi_rand(a, i);
+  //     bi_to_mpz(x, a);
+  //     mpz_to_bi(b, x);
 
-      if (bi_cmp(a, b) != 0) {
-        printf("Fel\na: sign: %d \n", a->sign );
-        bi_printf(a);
-        printf("\n" );
-        mpz_disp("x:", x);
-        printf("\nb: sign: %d \n", b->sign );
-        bi_printf(b); 
-        printf("\n");
+  //     if (bi_cmp(a, b) != 0) {
+  //       printf("Fel\na: sign: %d \n", a->sign );
+  //       bi_printf(a);
+  //       printf("\n" );
+  //       mpz_disp("x:", x);
+  //       printf("\nb: sign: %d \n", b->sign );
+  //       bi_printf(b); 
+  //       printf("\n");
 
-      }
-    }
+  //     }
+  //   }
 
-    // bi_clear(a);
-    // bi_clear(b);
-    mpz_clear(x);
+  //   // bi_clear(a);
+  //   // bi_clear(b);
+  //   mpz_clear(x);
 
     //END TESTA CONVERT
 
-  // int limbs = 1;
+  int limbs = 2;
   // int bitar = limbs * WORDSIZE;
-  // bi_resize(a, limbs);
-  // bi_t b;
-  // bi_init (b);
-  // bi_resize (b, 2);
+  bi_resize(a, limbs);
+  // // bi_t b;
+  // // bi_init (b);
+  // bi_resize (b, limbs);
+  // bi_t res;
+  // bi_init(res);
 
-  //HÅRDKODADE VÄRDEN
-  // a->sign = -1;
-  // a->value[0] = 0;
-  // a->value[1] = 0;
-  // a->value[2] = 0;
-  // a->value[3] = 0;
-  // a->value[4] = 0;
-  // a->value[5] = 0;
-  // a->value[6] = 0;
-  // a->value[7] = 0;
-  // a->value[8] = 0;
-  // a->value[9] = 0;
+  // HÅRDKODADE VÄRDEN
+   a->sign = 1;
+   a->value[0] =  79;
+   a->value[1] =  3;
+
+   printf("\nBiten: %d\n", bi_tstbit(a, 26));
+
+  // a->value[2] =  0;
+  // a->value[3] =  0;
+  // a->value[4] =  0;
+  // a->value[5] =  0;
+  // a->value[6] =  0;
+  // a->value[7] =  0;
+  // a->value[8] =  0;
+  // a->value[9] =  0;
   // a->value[10] = 0;
-  // a->value[11] = 11111;
-  // a->value[12] = 11111;
-  // a->value[13] = 11111;
-  // a->value[14] = 11111;
-  // a->value[15] = 11111;
-  // a->value[16] = 1;
-  // a->value[10] = 16777215;
-  // a->value[11] = 16777215;
-  // a->value[12] = 16777215;
-  // a->value[13] = 1000;
-  // a->value[14] = 1000;
-  // a->value[15] = 1000;
-  // a->value[16] = 1000;
+  // a->value[11] = 0;
+  // a->value[12] = 0;
+  // a->value[13] = 0;
+  // a->value[14] = 0;
+  // a->value[15] = 0;
+  // a->value[16] = 0;
+  // a->value[17] = 0;
+  // a->value[18] = 0;
+  // a->value[19] = 0;
+  // // a->value[20] = 0;
+  // // a->value[14] = 0;
+  // // a->value[15] = 0;
+  // // a->value[16] = 0;
+
+
+  // b->sign = 1;
+  // b->value[0] = WORDMASK;
+  // b->value[1] = WORDMASK;
+  // b->value[2] = 0;
+  // b->value[3] = WORDMASK;
+  // b->value[4] = WORDMASK;
+  // b->value[5] = WORDMASK;
+  // b->value[6] = WORDMASK;
+  // b->value[7] = WORDMASK;
+  // b->value[8] = WORDMASK;
+  // b->value[9] = WORDMASK;
+  // b->value[10] = WORDMASK;
+  // b->value[11] = WORDMASK;
+  // b->value[12] = WORDMASK;
+  // b->value[13] = WORDMASK;
+  // b->value[14] = WORDMASK;
+  // b->value[15] = WORDMASK;
+  // b->value[16] = WORDMASK;
+  // b->value[17] = WORDMASK;
+  // b->value[18] = WORDMASK;
+  // b->value[19] = WORDMASK;
+
+  // bi_normalize(a);
+  // bi_normalize(b);
+  // printf("\na sign: %d, b sign: %d\n", a->sign, b->sign);
+
+  // //TESTA ADD
+  // printf("\n");
+  // bi_printf(a);
+  // printf(" + ");
+  // bi_printf(b);
+  // bi_add(res,a,b);
+  // printf(" = \n");
+  // bi_printf(res);
+  // printf("\n");
+
+
+
+  //
+
 
   // bi_normalize(a);
 
@@ -643,13 +704,17 @@ void eget_test(void) {
   
   bi_clear(a);
   bi_clear(b);
+  bi_clear(res);
 
 }
 
 
+
+
+
 void main(int argc, char **argv) {
   time_t t;
-  eget_test();
+    eget_test();
 
 
   srand((unsigned) time(&t));
@@ -677,13 +742,13 @@ void main(int argc, char **argv) {
       bi_test_conv();
       bi_test_impexp();
 
-      bi_test_v3("bi_add", bi_add, mpz_add);
-      bi_test_v3("bi_sub", bi_sub, mpz_sub);
-      bi_test_v3("bi_mul", bi_mul, mpz_mul);
+      // bi_test_v3("bi_add", bi_add, mpz_add);
+      // bi_test_v3("bi_sub", bi_sub, mpz_sub);
+      // bi_test_v3("bi_mul", bi_mul, mpz_mul);
 
-      bi_test_v3("bi_and", bi_and, mpz_and);
-      bi_test_v3("bi_or", bi_or, mpz_ior);
-      bi_test_v3("bi_xor", bi_xor, mpz_xor);
+      // bi_test_v3("bi_and", bi_and, mpz_and);
+      // bi_test_v3("bi_or", bi_or, mpz_ior);
+      // bi_test_v3("bi_xor", bi_xor, mpz_xor);
 
       bi_test_cmp();
 

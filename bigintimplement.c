@@ -67,7 +67,7 @@ void bi_import(bi_t res, char *s) {
 
 	// antal_block = 
 	// printf("\n");
-	// printf("antal chars: %d\n i: %d", antal_block, i);
+	 // printf("antal chars: %d\n i: %d", antal_block, i);
 
 	bi_resize(res, 1 + antal_block/BLOCKS);
 	int block_index = antal_block-1;
@@ -95,9 +95,12 @@ void bi_import(bi_t res, char *s) {
 
 	if (sign == -1) {
 		res->sign = -1;
-	} else
+	} else if (sign ==1)
 	{
 		res->sign = 1;
+	}
+	if ( res->limbs == 1 && res->value[0] == 0){
+		res->sign = 0;
 	}
 
 }
@@ -222,6 +225,7 @@ int bi_bitsize(bi_t a) {
 	}
 
 	antal_bitar += (antal_block-1) * BLOCKSIZE;
+	antal_bitar = (antal_bitar == 0) ? 1 : antal_bitar ;
 
   return antal_bitar;
 }
@@ -230,7 +234,20 @@ int bi_bitsize(bi_t a) {
  * Returns the ith bit as an integer.
  */
 int bi_tstbit(bi_t a, int i) {
-  return 0;
+	int limb_index = i / WORDSIZE;
+	int antal_bitar = bi_bitsize(a);
+	if ( i >= antal_bitar) {
+		return 0;
+	}
+
+	int antal_skiftningar = i - limb_index*WORDSIZE; 
+	int limben = a->value[limb_index];
+	limben >>= antal_skiftningar;
+	int mask = 1 ;
+	int biten = mask & limben;
+
+
+ 	 return biten;
 }
 
 /**
@@ -286,6 +303,29 @@ void bi_neg(bi_t res, bi_t a) {
  * Sets res = a + b.
  */
 void bi_add(bi_t res, bi_t a, bi_t b) {
+	if (a->sign == 0) {
+		bi_set (res, b) ; 
+	} else if (b->sign == 0) {
+		bi_set(res, a); 
+	} 
+	else {
+		
+		if (a->sign == b->sign) {
+			bi_resize(res, MAX(a->limbs, b->limbs)+1); 
+			bi_uadd (res, a, b) ;
+			res->sign = a->sign ;
+		}
+		else {
+			bi_resize(res, MAX(a->limbs, b->limbs)+1); 
+			bi_uabsdiff(res, a, b);
+			res->sign *= -1; 
+		}
+	
+
+
+	}
+
+	bi_normalize(res);
 }
 
 /**

@@ -12,7 +12,7 @@
  * bi->limbs = 1 to be able to store zero.
  */
 void bi_normalize(bi_t bi) {
-
+  int sign = bi->sign;
   int new_length;
   int i = bi->limbs - 1 ;
   //Leta efter första signifikanta siffran
@@ -34,7 +34,7 @@ void bi_normalize(bi_t bi) {
     }
 
     free(copy); //kasta bort kopian
-
+    bi->sign = sign;
 
   }
   else if (new_length == bi->limbs) {
@@ -296,7 +296,52 @@ int bi_ucmp(bi_t a, bi_t b) {
  * then the overflow is discarded.
  */
 void bi_uadd(bi_t res, bi_t a, bi_t b) {
+
+  int min_limbs = MIN(a->limbs, b->limbs);
+  int max_limbs = MAX(a->limbs, b->limbs);
+  int carry_over = 0;
+  // printf("\na->limbs: %d, b->limbs: %d\n", a->limbs, b->limbs);
+
+  bi_t biggest_int;
+  bi_init (biggest_int); // ska peka på den som har flest limbs
+
+  if (a->limbs == max_limbs) {
+    bi_set(biggest_int, a);
+  } else {
+    bi_set(biggest_int, b);
+  }
+
+  int i = 0;
+  for (  i = 0; i < min_limbs; i++) {
+    res->value[i] = a->value[i] + b->value[i] + carry_over;
+    carry_over = check_carry(res->value[i]);
+    res->value[i] &= WORDMASK; //maskera bort nails
+  }
+
+  if ( min_limbs != max_limbs) { //fallet där ett tal har fler limbs
+    printf("Olika storlek");
+    for (i; i < max_limbs ; i++) {
+      res->value[i] = biggest_int->value[i] + carry_over;
+      carry_over = check_carry(res->value[i]);
+      res->value[i] &= WORDMASK; //maskera bort nails
+      
+    }
+  }
+
+  if (carry_over == 1) {
+    res->value[res->limbs-1] += 1; //flytta carry-over till sista limben i res
+  }
 }
+
+//returnera 1 om vi har en carry-over, 0 annars
+int check_carry(int limb) {
+  if (limb > WORDMASK) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 
 /**
  * Sets res->value = - a->value in two's complement for integers with
