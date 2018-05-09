@@ -65,7 +65,7 @@ void bi_setzero(bi_t res, int i) {
 int bi_randword() {
   int randomword = arc4random();
   randomword = randomword & WORDMASK;
-  return 0;
+  return randomword;
 }
 
 /**

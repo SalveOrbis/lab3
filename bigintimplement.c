@@ -51,28 +51,54 @@ void bi_printf(bi_t a) {
 void bi_import(bi_t res, char *s) {
 	int i = 0;
 	int antal_block = 0;
-	if (s[i++] == '-') {
-		res->sign = -1;
+	int sign = 1;
+	if (s[i] == '-') {
+		sign = -1;
+		// printf("hittade ett minus\n");
+		i++;
 	}
 
-	while(s[i++] != '\0') {
-		antal_block++;  ;
+	// printf("import \n");
+	while(s[i] != '\0') {
+		// printf("%c", s[i]);
+		i++;
+		++antal_block; 
 	}
+
 	// antal_block = 
-	printf("antal chars: %d\n", antal_block);
+	// printf("\n");
+	// printf("antal chars: %d\n i: %d", antal_block, i);
 
 	bi_resize(res, 1 + antal_block/BLOCKS);
 	int block_index = antal_block-1;
-	i = (res->sign == -1) ?  1 : 0 ;
+	// i = (res->sign == -1) ?  1 : 0 ;
+
+	if (sign == -1) {
+		res->sign = -1;
+		i = 1;
+	} else
+	{
+		res->sign = 1;
+		i = 0;
+	}
+
 
 	for (block_index; block_index >= 0; block_index--) {
 		char hexdec = s[i++];
+		// printf("\nhex: %c\n", hexdec);
 		int blocket = hex_to_int (hexdec);
 		bi_setblk(res, block_index, blocket); 
 	}
 
+	// printf("i: %d\n", i );
+	bi_normalize(res);
 
-
+	if (sign == -1) {
+		res->sign = -1;
+	} else
+	{
+		res->sign = 1;
+	}
 
 }
 
@@ -83,24 +109,30 @@ void bi_import(bi_t res, char *s) {
  */
 int bi_export(char *res, bi_t a) {
 	int antal_block = bi_blocks(a);
-	printf("\nantal block: %d\n", antal_block);
+	// printf("\nantal block: %d\n", antal_block);
 	int i = 0;
 
 	if (a->sign == -1) {
-		res[i++] = '-';
+		res[i] = '-';
+		i++;
 	}
 
 	int block_index = antal_block-1 ;
 
+	// printf("\n export:\n" );
+
 	for ( block_index ; block_index >= 0; block_index--) {
 		int blocket = bi_getblk(a, block_index);
 		char hexdec = int_to_hex(blocket);
+		// printf("%c",hexdec );
 		res[i++] = hexdec;
 	}
-	i++;
+	// printf("\n");
+	
 	res[i] = '\0';
+	// printf("\n strängen: \n%s\n", res );
 
-  return i;
+  return --i;
 }
 
 /**
@@ -125,8 +157,8 @@ void bi_setui(bi_t res, unsigned int u) {
  *
  * The most significant word requires special attention, since some of
  * its bits may have to be set to zero if bits is not divisible by
- * WORDSIZE.
- *
+	 * WORDSIZE.
+	 *
  * We stress that some (or even all!) leading bits in the most
  * significant word may be zero, since they are randomly chosen.
  *
@@ -136,6 +168,33 @@ void bi_setui(bi_t res, unsigned int u) {
  * keep in mind that it outputs a number in a small interval.
  */
 void bi_rand(bi_t res, int bits) {
+	int antal_bitar = bits;
+	int antal_limbs = antal_bitar / WORDSIZE + 1;
+	if (antal_bitar %  WORDSIZE == 0 && antal_bitar != 0) {
+		antal_limbs--;
+	}
+
+	// printf("antal limbs: %d\n", antal_limbs );
+	bi_resize(res, antal_limbs);
+
+
+	for (int i = 0; i < antal_limbs; ++i)
+	{
+		int word = bi_randword();
+		res->value[i] = word;
+	}
+
+	//Skifta  bort bitar i översta limben
+	int antal_skiftningar =  (antal_limbs)*WORDSIZE - antal_bitar;
+	int last_limb = res->value[antal_limbs -1];
+
+	last_limb >>= antal_skiftningar;
+	res->value[antal_limbs -1] = last_limb;
+
+
+
+	bi_normalize(res);
+	res->sign = 1;
 }
 
 /**
@@ -143,7 +202,22 @@ void bi_rand(bi_t res, int bits) {
  * unsigned integer.
  */
 int bi_bitsize(bi_t a) {
-  return 0;
+	int antal_block = bi_blocks(a); 
+
+	//kolla bitar i sista blocket
+	int block_index = antal_block-1;
+	int mask = 8; //Signifikanta biten i ett 4 bitars tal
+	int blocket = bi_getblk(a, block_index);
+	int antal_bitar = BLOCKSIZE;
+	while ((blocket & mask) == 0 && antal_bitar > 0 ) {
+		antal_bitar--;
+		mask >>= 1;
+		// printf("\nantal bitar räknade: %d\n", antal_bitar);
+	}
+
+	antal_bitar += (antal_block-1) * BLOCKSIZE;
+
+  return antal_bitar;
 }
 
 /**
@@ -158,6 +232,41 @@ int bi_tstbit(bi_t a, int i) {
  * than b as signed integers.
  */
 int bi_cmp(bi_t a, bi_t b) {
+	if (a->sign > b->sign ) {
+		// printf("a större än b \n");
+		// printf("tecken a: %d, tecken b: %d \n", a->sign, b->sign);
+		return 1;
+	} 
+	else if (a->sign < b->sign) {
+		// printf("b större än a \n");
+		return -1;
+	}
+	else {
+		// printf("a = b \n");
+		// printf("tecken a: %d, tecken b: %d \n", a->sign, b->sign);
+		if (a->sign < 0) {
+			if (bi_ucmp(a,b) == 1) { //a är mindre
+				return -1;
+			 } else if (bi_ucmp(a,b) == -1) {
+			 	return 1;
+			 } else {
+			 	return 0;
+			 }
+		}
+		else if (a->sign > 0) {
+			if (bi_ucmp(a,b) == 1) { //a är större
+				return 1;
+			 } else if (bi_ucmp(a,b) == -1) {
+			 	return -1;
+			 } else {
+			 	return 0;
+			 }
+		}
+		else if (a->sign == 0) {
+			return 0;
+		}
+
+	}
   return 0;
 }
 

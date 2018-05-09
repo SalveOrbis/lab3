@@ -487,41 +487,90 @@ void runtests() {
 void eget_test(void) {
   bi_t a ;
   bi_init (a);
-  int limbs = 7;
-  int bitar = limbs * WORDSIZE;
-  bi_resize(a, limbs);
+  bi_t b;
+  bi_init (b);
+  //TESTA RAND
+
+  for (int i = 1; i < 100; i++){
+    bi_rand(a, i );
+    // bi_printf(a);
+    // printf("\n");
+   
+    int antal_bitar = bi_bitsize(a);
+    char *s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
+        
+    bi_export(s, a);
+    bi_import (b, s);
+    if (bi_cmp(a,b) != 0) {
+      printf("Det blev fel:  a:\n ");
+      bi_printf(a);
+      printf("\nhex \n %s \n",s);
+      printf(" b:\n ");
+      bi_printf(b);
+      printf("\n");
+    }
+
+  }
+  //SLUT TESTA RAND
+
+  // int limbs = 1;
+  // int bitar = limbs * WORDSIZE;
+  // bi_resize(a, limbs);
   // bi_t b;
   // bi_init (b);
   // bi_resize (b, 2);
 
-
-  a->value[0] = 150;
+  //HÅRDKODADE VÄRDEN
   // a->sign = -1;
-  a->value[1] = 16777215;
-  a->value[2] = 16777215;
-  a->value[3] = 87536;
-   a->value[4] = 16777215;
-  a->value[5] = 16777215;
-  a->value[6] = 8;
-  // a->value[7] = 124;
-  bi_printf(a);
-  printf("\n");
-  // bi_setblk(a, 1, 15);
-  // bi_setblk(a, 4, 15);
+  // a->value[0] = 0;
+  // a->value[1] = 0;
+  // a->value[2] = 0;
+  // a->value[3] = 0;
+  // a->value[4] = 0;
+  // a->value[5] = 0;
+  // a->value[6] = 0;
+  // a->value[7] = 0;
+  // a->value[8] = 0;
+  // a->value[9] = 0;
+  // a->value[10] = 0;
+  // a->value[11] = 11111;
+  // a->value[12] = 11111;
+  // a->value[13] = 11111;
+  // a->value[14] = 11111;
+  // a->value[15] = 11111;
+  // a->value[16] = 1;
+  // a->value[10] = 16777215;
+  // a->value[11] = 16777215;
+  // a->value[12] = 16777215;
+  // a->value[13] = 1000;
+  // a->value[14] = 1000;
+  // a->value[15] = 1000;
+  // a->value[16] = 1000;
+
+  // bi_normalize(a);
+
+  // int antal_bitar = bi_bitsize(a);
+  // printf("\nAntal bitar: %d\n", antal_bitar );
+
+  // bi_printf(a);
+  // printf("\n");
+  // // bi_setblk(a, 1, 15);
+  // // bi_setblk(a, 4, 15);
+  // // bi_printf(a);
+  // // printf("\n");
+
+  // //TESTA IMPORT / EXPORT
+  // char *s ; //= malloc (sizeof(char) * LIMBBYTES * limbs);
+  // s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
+
+  // int antal_chars = bi_export(s, a);
+  // printf("bi_export:\n%s\n", s);
+  // bi_import(a, s);
+  // printf("bi_import: \n");
   // bi_printf(a);
   // printf("\n");
 
-  char *s ; //= malloc (sizeof(char) * LIMBBYTES * limbs);
-  s = malloc(sizeof(*s) * ((bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
-
-  int antal_chars = bi_export(s, a);
-  bi_import(a, s);
-  printf("bi_export:\n%s\n", s);
-  printf("bi_import: \n");
-  bi_printf(a);
-  printf("\n");
-
-  free(s);
+  // free(s);
 
   // bi_normalize(a);
   // b->value[0] = 0;
@@ -557,6 +606,8 @@ void eget_test(void) {
   //   printf("%c\n", hex);
   // }
   
+  bi_clear(a);
+  bi_clear(b);
 
 }
 
