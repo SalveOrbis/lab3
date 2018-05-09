@@ -194,7 +194,13 @@ void bi_rand(bi_t res, int bits) {
 
 
 	bi_normalize(res);
-	res->sign = 1;
+	if(res->limbs == 1 && res->value[0] == 0) {
+		res->sign = 0;
+	} else {
+		res->sign = 1;
+		
+	}
+
 }
 
 /**

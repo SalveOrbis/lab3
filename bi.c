@@ -370,7 +370,7 @@ void bi_test_cmp() {
           zcmp = zcmp < 0 ? -1 : (zcmp > 0 ? 1 : 0);
 
           if (cmp != zcmp) {
-            error_head("Failed to compute!\n");
+            error_head("CMP Failed to compute!\n");
 
             bi_disp("a", a);
             bi_disp("b", b);
@@ -416,13 +416,14 @@ void bi_test_impexp() {
       }
 
       // Make room for potential minus character.
-      s = malloc(sizeof(*s) * ((i + BLOCKSIZE - 1) / BLOCKSIZE + 2));
+      int antal_bitar = bi_bitsize(a);
+      s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
 
       bi_export(s, a);
       bi_import(b, s);
 
       if (bi_cmp(a, b) != 0) {
-        error_head("Failed to compute!\n");
+        error_head("IMPEXP Failed to compute!\n");
 
         bi_disp("a", a);
         printf("s = %s\n", s);
@@ -485,33 +486,67 @@ void runtests() {
 }
 
 void eget_test(void) {
-  bi_t a ;
-  bi_init (a);
-  bi_t b;
-  bi_init (b);
+  // bi_t a ;
+  // bi_init (a);
+  // bi_t b;
+  // bi_init (b);
   //TESTA RAND
 
-  for (int i = 1; i < 100; i++){
-    bi_rand(a, i );
-    // bi_printf(a);
-    // printf("\n");
+  // for (int i = 1; i < 100; i++){
+  //   bi_rand(a, i );
+  //   // bi_printf(a);
+  //   // printf("\n");
    
-    int antal_bitar = bi_bitsize(a);
-    char *s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
+  //   int antal_bitar = bi_bitsize(a);
+  //   char *s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
         
-    bi_export(s, a);
-    bi_import (b, s);
-    if (bi_cmp(a,b) != 0) {
-      printf("Det blev fel:  a:\n ");
-      bi_printf(a);
-      printf("\nhex \n %s \n",s);
-      printf(" b:\n ");
-      bi_printf(b);
-      printf("\n");
+  //   bi_export(s, a);
+  //   bi_import (b, s);
+  //   if (bi_cmp(a,b) != 0) {
+  //     printf("Det blev fel:  a:\n ");
+  //     bi_printf(a);
+  //     printf("\nhex \n %s \n",s);
+  //     printf(" b:\n ");
+  //     bi_printf(b);
+  //     printf("\n");
+  //   }
+
+  // }
+  //SLUT TESTA RAND
+
+  //TESTA CONVERT
+  bi_t a;
+   bi_t b;
+   mpz_t x;
+   int i;
+
+   bi_init(a);
+   bi_init(b);
+   mpz_init(x);
+
+    for (i = 1; i < 10001; i++) {
+
+      bi_rand(a, i);
+      bi_to_mpz(x, a);
+      mpz_to_bi(b, x);
+
+      if (bi_cmp(a, b) != 0) {
+        printf("Fel\na: sign: %d \n", a->sign );
+        bi_printf(a);
+        printf("\n" );
+        mpz_disp("x:", x);
+        printf("\nb: sign: %d \n", b->sign );
+        bi_printf(b); 
+        printf("\n");
+
+      }
     }
 
-  }
-  //SLUT TESTA RAND
+    // bi_clear(a);
+    // bi_clear(b);
+    mpz_clear(x);
+
+    //END TESTA CONVERT
 
   // int limbs = 1;
   // int bitar = limbs * WORDSIZE;
