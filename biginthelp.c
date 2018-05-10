@@ -301,19 +301,19 @@ int bi_ucmp(bi_t a, bi_t b) {
  * then the overflow is discarded.
  */
 void bi_uadd(bi_t res, bi_t a, bi_t b) {
-
+  // printf("BÖRJAN AV UADD\n");
   int min_limbs = MIN(a->limbs, b->limbs);
   int max_limbs = MAX(a->limbs, b->limbs);
   int carry_over = 0;
   // printf("\na->limbs: %d, b->limbs: %d\n", a->limbs, b->limbs);
 
-  bi_t biggest_int;
-  bi_init (biggest_int); // ska peka på den som har flest limbs
-
+  int *biggest_int ; //ska peka på bi_t->value som har flest limbs
+  
   if (a->limbs == max_limbs) {
-    bi_set(biggest_int, a);
+        biggest_int = a->value;
   } else {
-    bi_set(biggest_int, b);
+ 
+        biggest_int = b->value;
   }
 
   int i = 0;
@@ -323,10 +323,11 @@ void bi_uadd(bi_t res, bi_t a, bi_t b) {
     res->value[i] &= WORDMASK; //maskera bort nails
   }
 
+
+
   if ( min_limbs != max_limbs) { //fallet där ett tal har fler limbs
-    // printf("Olika storlek"); 
     for (i; i < max_limbs ; i++) {
-      res->value[i] = biggest_int->value[i] + carry_over;
+      res->value[i] = biggest_int[i] + carry_over;
       carry_over = check_carry(res->value[i]);
       res->value[i] &= WORDMASK; //maskera bort nails
       
@@ -338,6 +339,9 @@ void bi_uadd(bi_t res, bi_t a, bi_t b) {
   }
 }
 
+
+
+
 //returnera 1 om vi har en carry-over, 0 annars
 int check_carry(int limb) {
   if (limb > WORDMASK) {
@@ -347,10 +351,9 @@ int check_carry(int limb) {
   }
 }
 
-int check_borrow (bi_t a,bi_t b, int i) {
-  printf("a: %d, b: %d \n", a->value[i], b->value[i]);
-  if ( a->value[i] < b->value[i]  && a->limbs > i+1 ) {
-    printf("Låna sig lite\n");
+//returnera 1 om vi ska låna av en limb
+int check_borrow (int res, int a_limbs, int i) {
+  if ( res < 0  && a_limbs > i+1 ) {
     return 1;
 
   }
@@ -373,6 +376,50 @@ void bi_pneg(bi_t res, bi_t a) {
  * a->value > b->value.
  */
 void bi_usub(bi_t res, bi_t a, bi_t b) {
+  int min_limbs = MIN(a->limbs, b->limbs);
+  int max_limbs = MAX(a->limbs, b->limbs);
+
+  int *biggest_int ; //ska peka på bi_t->value som har flest limbs
+  
+  if (a->limbs == max_limbs) {
+        biggest_int = a->value;
+  } else {
+ 
+        biggest_int = b->value;
+  }
+
+  int i;
+  int borrow = 0 ;
+  int has_borrowed = 0;
+  int resultat ;
+  for ( i = 0 ; i < min_limbs; i++)
+  {
+    resultat = a->value[i] - b->value[i] - has_borrowed;
+    printf("resultat: %d\nhas_borrowed: %d\n", resultat, has_borrowed );
+    has_borrowed = check_borrow(resultat, a->limbs, i);
+    borrow = (has_borrowed == 1) ? WORDMASK : 0;
+    resultat = resultat + borrow ;
+    printf("resultat: %d\n", resultat );
+    res->value[i] = resultat & WORDMASK;
+  }
+
+  if (max_limbs != min_limbs) {
+    for ( i; i < max_limbs; i++)
+    {
+      
+      resultat = biggest_int[i] - has_borrowed;
+      has_borrowed = check_borrow(resultat, a->limbs, i);
+      borrow = (has_borrowed == 1) ? WORDMASK : 0;
+      resultat = resultat + borrow;
+      // printf("resultat: %d\n", resultat );
+      res->value[i] = resultat & WORDMASK;
+    }
+
+
+  }
+
+
+
 }
 
 /**
@@ -382,46 +429,49 @@ void bi_usub(bi_t res, bi_t a, bi_t b) {
  */
 void bi_uabsdiff(bi_t res, bi_t a, bi_t b) {
 
-
   int min_limbs = MIN(a->limbs, b->limbs);
   int max_limbs = MAX(a->limbs, b->limbs);
-  int carry_over = 0;
 
-  bi_t biggest_int;
-  bi_init (biggest_int); // ska peka på den som har flest limbs
-
+  int *biggest_int ; //ska peka på bi_t->value som har flest limbs
+  
   if (a->limbs == max_limbs) {
-    bi_set(biggest_int, a);
+        biggest_int = a->value;
   } else {
-    bi_set(biggest_int, b);
+ 
+        biggest_int = b->value;
   }
 
-  int i = 0;
+  int i;
   int borrow = 0 ;
   int has_borrowed = 0;
-  int resultat = a->value[i]  - b->value[i];
-  for ( i = 1 ; i < max_limbs; ++i)
+  int resultat ;
+  for ( i = 0 ; i < min_limbs; i++)
   {
-    has_borrowed = check_borrow(a, b, i-1);
+    resultat = a->value[i] - b->value[i] - has_borrowed;
+    has_borrowed = check_borrow(resultat, a->limbs, i);
     borrow = (has_borrowed == 1) ? WORDMASK : 0;
-    resultat = a->value[i]  - b->value[i] - has_borrowed;
-    resultat = abs(resultat + borrow);
+    resultat = resultat + borrow;
+    resultat = abs(resultat);
     res->value[i] = resultat & WORDMASK;
   }
 
   if (max_limbs != min_limbs) {
     for ( i; i < max_limbs; i++)
     {
-      res->value[i] = biggest_int->value[i];
+      
+      resultat = biggest_int[i] - has_borrowed;
+      has_borrowed = check_borrow(resultat, a->limbs, i);
+      borrow = (has_borrowed == 1) ? WORDMASK : 0;
+      resultat = resultat + borrow;
+      resultat = abs(resultat);
+      res->value[i] = resultat & WORDMASK;
     }
-  }
 
-  if (has_borrowed == 1) {
-    res->value[res->limbs -1] -= 1;
-    res->value[res->limbs -1] &= WORDMASK;
-  }
 
-// TECKENHANTERING
+  }
+  
+
+    // TECKENHANTERING
     if (bi_ucmp(a,b) == 1 ) {
       if (a->sign == 1) {
          res->sign = 1;

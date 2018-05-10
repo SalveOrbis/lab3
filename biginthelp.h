@@ -119,4 +119,4 @@ void bi_umuladd(bi_t res, bi_t a, int scalar, int shift);
 
 int check_carry(int limb);
 
-int check_borrow(bi_t a, bi_t b, int i);
+int check_borrow(int res, int a_limbs, int i);

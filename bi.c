@@ -242,6 +242,7 @@ void bi_test_tstbit() {
 void bi_para_v3(bi_t a, bi_t b,
                 void (*bf)(bi_t res, bi_t a, bi_t b),
                 void (*zf)(mpz_t zres, const mpz_t za, const mpz_t zb)) {
+  
   bi_t res;
   mpz_t bres;
 
@@ -268,6 +269,7 @@ void bi_para_v3(bi_t a, bi_t b,
   // Using GMP.
   zf(zres, za, zb);
 
+
   if (mpz_cmp(bres, zres) != 0) {
     error_head("Failed to compute!\n");
 
@@ -283,6 +285,8 @@ void bi_para_v3(bi_t a, bi_t b,
     error_tail();
   }
 
+
+
   // Clear
   bi_clear(res);
   mpz_clear(bres);
@@ -290,6 +294,7 @@ void bi_para_v3(bi_t a, bi_t b,
   mpz_clear(zres);
   mpz_clear(za);
   mpz_clear(zb);
+
 }
 
 /**
@@ -317,7 +322,7 @@ void bi_test_v3(char *name,
     for (j = 1; j < 100; j++) {
       bi_rand(a, i);
       bi_rand(b, j);
-
+      // fprintf(stderr,"i: %d j: %d\n",i,j );
       bi_para_v3(a, b, bf, zf);
     }
   }
@@ -496,209 +501,45 @@ void eget_test(void) {
   bi_t res;
   bi_init(res);
   
-  // TESTA RAND
-
-  // for (int i = 1; i < 100; i++){
-  //   bi_rand(a, i );
-  //   // bi_printf(a);
-  //   // printf("\n");
-   
-  //   if ( i  != bi_bitsize(a)) {
-  //     printf("Fel antal bitar! rätt antal: %d, bi_bitsize: %d\n", i, bi_bitsize(a));
-  //     bi_printf(a);
-  //     printf("\n");
-  //   }
-
-
-    // int antal_bitar = bi_bitsize(a);
-    // char *s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
-        
-    // bi_export(s, a);
-    // bi_import (b, s);
-    // if (bi_cmp(a,b) != 0) {
-    //   printf("Det blev fel: \na:\n ");
-    //   bi_printf(a);
-    //   printf("\nhex: \n %s \n",s);
-    //   printf(" b:\n ");
-    //   bi_printf(b);
-    //   printf("\n");
-    //   printf("sign a: %d, sign b: %d\n",a->sign, b->sign );
-    // }
-
-  // }
-  // SLUT TESTA RAND
-
-  // //TESTA CONVERT
-  // bi_t a;
-  //  bi_t b;
-  //  mpz_t x;
-  //  int i;
-
-  //  bi_init(a);
-  //  bi_init(b);
-  //  mpz_init(x);
-
-  //   for (i = 1; i < 10001; i++) {
-
-  //     bi_rand(a, i);
-  //     bi_to_mpz(x, a);
-  //     mpz_to_bi(b, x);
-
-  //     if (bi_cmp(a, b) != 0) {
-  //       printf("Fel\na: sign: %d \n", a->sign );
-  //       bi_printf(a);
-  //       printf("\n" );
-  //       mpz_disp("x:", x);
-  //       printf("\nb: sign: %d \n", b->sign );
-  //       bi_printf(b); 
-  //       printf("\n");
-
-  //     }
-  //   }
-
-  //   // bi_clear(a);
-  //   // bi_clear(b);
-  //   mpz_clear(x);
-
-    //END TESTA CONVERT
-
-
 
   // HÅRDKODADE VÄRDEN
-  int limbs = 2;
   // int bitar = limbs * WORDSIZE;
+  int limbs = 1;
   bi_resize(a, limbs);
-   a->sign = 1;
-   a->value[0] =  0;
-    a->value[1] =  3;
+  a->sign = 1;
+  a->value[0] =  0x94f5;
+   // a->value[2] =  WORDMASK;
+  // a->value[2] =  10;
+  // a->value[3] =  10;
+  // a->value[4] =  10;
+  // a->value[5] =  10;
 
-   // printf("\nBiten: %d\n", bi_tstbit(a, 26));
-
-  // a->value[2] =  0;
-  // a->value[3] =  0;
-  // a->value[4] =  0;
-  // a->value[5] =  0;
-  // a->value[6] =  0;
-  // a->value[7] =  0;
-  // a->value[8] =  0;
-  // a->value[9] =  0;
-  // a->value[10] = 0;
-  // a->value[11] = 0;
-  // a->value[12] = 0;
-  // a->value[13] = 0;
-  // a->value[14] = 0;
-  // a->value[15] = 0;
-  // a->value[16] = 0;
-  // a->value[17] = 0;
-  // a->value[18] = 0;
-  // a->value[19] = 0;
-  // // a->value[20] = 0;
-  // // a->value[14] = 0;
-  // // a->value[15] = 0;
-  // // a->value[16] = 0;
-
-  limbs = 1;
+  limbs = 2;
   bi_resize (b, limbs);
-  b->sign = -1;
-  b->value[0] = 1;
+  b->sign = 2;
+  b->value[0] = 0x008001;
+  b->value[1] = 0xe920;
+  // b->value[2] = 0x7bf25b;
   // b->value[1] = 1;
-  // b->value[2] = 0;
-  // b->value[3] = WORDMASK;
-  // b->value[4] = WORDMASK;
-  // b->value[5] = WORDMASK;
-  // b->value[6] = WORDMASK;
-  // b->value[7] = WORDMASK;
-  // b->value[8] = WORDMASK;
-  // b->value[9] = WORDMASK;
-  // b->value[10] = WORDMASK;
-  // b->value[11] = WORDMASK;
-  // b->value[12] = WORDMASK;
-  // b->value[13] = WORDMASK;
-  // b->value[14] = WORDMASK;
-  // b->value[15] = WORDMASK;
-  // b->value[16] = WORDMASK;
-  // b->value[17] = WORDMASK;
-  // b->value[18] = WORDMASK;
-  // b->value[19] = WORDMASK;
+ 
+ //-e91fffeb0c
 
-  bi_normalize(a);
-  bi_normalize(b);
+  // bi_normalize(a);
+  // bi_normalize(b);
 
-  //TESTA ADD
+  //TESTA U-SUB
   printf("\n");
-  bi_printf(a);
-  printf(" + ");
-  bi_printf(b);
-  bi_add(res,a,b);
-  printf(" = \n");
+  bi_printf(a); printf(" - ");
+  bi_printf(b); printf(" = ");
+
+  bi_resize(res, MAX(a->limbs, b->limbs)+1);
+  bi_usub(res,b,a);
+  bi_normalize(res);
   bi_printf(res);
-  printf("\n");
-  printf("\na sign: %d, b sign: %d  res sign: %d\n", a->sign, b->sign, res->sign);
 
+ printf("\n");
 
-
-  //
-
-
-  // bi_normalize(a);
-
-  // int antal_bitar = bi_bitsize(a);
-  // printf("\nAntal bitar: %d\n", antal_bitar );
-
-  // bi_printf(a);
-  // printf("\n");
-  // // bi_setblk(a, 1, 15);
-  // // bi_setblk(a, 4, 15);
-  // // bi_printf(a);
-  // // printf("\n");
-
-  // //TESTA IMPORT / EXPORT
-  // char *s ; //= malloc (sizeof(char) * LIMBBYTES * limbs);
-  // s = malloc(sizeof(*s) * ((antal_bitar + BLOCKSIZE - 1) / BLOCKSIZE + 2));
-
-  // int antal_chars = bi_export(s, a);
-  // printf("bi_export:\n%s\n", s);
-  // bi_import(a, s);
-  // printf("bi_import: \n");
-  // bi_printf(a);
-  // printf("\n");
-
-  // free(s);
-
-  // bi_normalize(a);
-  // b->value[0] = 0;
-  // b->value[1] = 5;
-
-  //testa ucmp
-  // if (bi_ucmp(a,b) == 1) {
-  //   printf("a är större än b\n");
-
-  // } else if (bi_ucmp(a,b) == -1) {
-  //   printf("b är större än a\n");
-  // } else {
-  //   printf("a och b är lika stora\n");
-  // }
-  
-
-
-  // bi_setblk(a, 1, 0);
-  // bi_setblk(a, 2, 15);
-  // bi_setblk(a, 3, 0);
-  // bi_setblk(a, 4, 15);
-  // bi_setblk(a, 5, 0);
-  // bi_setblk(a, 6, 15);
-  // bi_setblk(a, 7, 0);
-  // bi_setblk(a, 8, 15);
-
-
-  // int num_blocks = bi_blocks(a);
-  // printf("Antal block: %d\n", num_blocks);
-  // for (int i = 0; i < num_blocks; i++) {
-  //   int blocket = bi_getblk(a,i);
-  //   char hex = int_to_hex(blocket);
-  //   printf("%c\n", hex);
-  // }
-  
+    
   bi_clear(a);
   bi_clear(b);
   bi_clear(res);
@@ -739,13 +580,13 @@ void main(int argc, char **argv) {
       bi_test_conv();
       bi_test_impexp();
 
-      // bi_test_v3("bi_add", bi_add, mpz_add);
-      // bi_test_v3("bi_sub", bi_sub, mpz_sub);
-      // bi_test_v3("bi_mul", bi_mul, mpz_mul);
+      bi_test_v3("bi_add", bi_add, mpz_add);
+      bi_test_v3("bi_sub", bi_sub, mpz_sub);
+      bi_test_v3("bi_mul", bi_mul, mpz_mul);
 
-      // bi_test_v3("bi_and", bi_and, mpz_and);
-      // bi_test_v3("bi_or", bi_or, mpz_ior);
-      // bi_test_v3("bi_xor", bi_xor, mpz_xor);
+      bi_test_v3("bi_and", bi_and, mpz_and);
+      bi_test_v3("bi_or", bi_or, mpz_ior);
+      bi_test_v3("bi_xor", bi_xor, mpz_xor);
 
       bi_test_cmp();
 

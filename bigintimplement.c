@@ -12,7 +12,7 @@
  */
 void bi_init(bi_t bi) {
 	bi->sign = 0;
-	bi->value = malloc (sizeof(*(bi->value) * DEFAULT_LIMBS)); //@LAB3
+	bi->value = malloc (sizeof(LIMBBYTES * DEFAULT_LIMBS)); //@LAB3
 	bi->limbs = DEFAULT_LIMBS;
 	for (int i = 0;  i < DEFAULT_LIMBS; i++ ) { 
 		bi->value[i] = 0;
@@ -142,8 +142,14 @@ int bi_export(char *res, bi_t a) {
  * Sets res = a.
  */
 void bi_set(bi_t res, bi_t a) {
-	bi_clear(res);
-	*res = *a;
+	bi_resize(res, a->limbs);
+	for (int i = 0 ; i < a->limbs; i++){
+		res->value[i] = a->value[i];
+	}
+
+	res->sign = a->sign;
+	// bi_clear(res);
+	// *res = *a;
 }
 
 /**
@@ -311,18 +317,18 @@ void bi_add(bi_t res, bi_t a, bi_t b) {
 	else {
 		
 		if (a->sign == b->sign) {
+			// printf("res limbs: %d\n", MAX(a->limbs, b->limbs)+1);
 			bi_resize(res, MAX(a->limbs, b->limbs)+1); 
+			// printf("Och hit!\n");
 			bi_uadd (res, a, b) ;
 			res->sign = a->sign ;
 		}
 		else {
 			bi_resize(res, MAX(a->limbs, b->limbs)+1); 
 			bi_uabsdiff(res, a, b);
-			// res->sign *= -1; 
 		}
 	
 	}
-
 	bi_normalize(res);
 }
 
@@ -330,6 +336,48 @@ void bi_add(bi_t res, bi_t a, bi_t b) {
  * Sets res = a - b.
  */
 void bi_sub(bi_t res, bi_t a, bi_t b) {
+	if (a->sign == 0 ){
+		bi_set(res, b);
+		res->sign = -1;
+	} else if (b->sign == 0) {
+		bi_set (res, a);
+		res->sign = 1;
+	}
+	else {
+
+		if (a->sign == 1) {
+			if (b->sign == 1) { // a - b
+				if ( bi_ucmp(a, b) == 1 ) { // a > b
+					bi_resize(res, MAX(a->limbs, b->limbs)+1); 
+					bi_usub(res, a, b);
+					res->sign = 1;
+				} else if ( bi_ucmp (a, b) == 0) { // a  = b
+					res->sign = 0;
+					res->limbs = 1;
+					res->value[0] = 0;
+				} else if ( bi_ucmp (a, b) == -1 ) { // a < b
+					bi_resize(res, MAX(a->limbs, b->limbs)+1); 
+					bi_usub(res, b, a);
+					// bi_uabsdiff (res, a, b);
+					res->sign = -1;
+				}
+			} 
+			else if (b->sign == -1) { // a - (-b) = a + b
+				bi_add(res, a, b);
+			}
+		}
+		else if (a->sign == -1) {
+			if (b->sign == 1) { // -a - b
+				bi_add(res, a, b);
+			}
+			else if (b->sign == -1) { // -a - (-b) => -a + b
+				bi_add(res, a, b);
+			}
+		} 
+
+	}
+
+	bi_normalize(res);
 }
 
 /**
