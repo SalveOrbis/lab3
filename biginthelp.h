@@ -116,3 +116,7 @@ void bi_uabsdiff(bi_t res, bi_t a, bi_t b);
  * mod 2^((a->limbs + shift) * WORDSIZE).
  */
 void bi_umuladd(bi_t res, bi_t a, int scalar, int shift);
+
+int check_carry(int limb);
+
+int check_borrow(bi_t a, bi_t b, int i);

@@ -318,11 +318,9 @@ void bi_add(bi_t res, bi_t a, bi_t b) {
 		else {
 			bi_resize(res, MAX(a->limbs, b->limbs)+1); 
 			bi_uabsdiff(res, a, b);
-			res->sign *= -1; 
+			// res->sign *= -1; 
 		}
 	
-
-
 	}
 
 	bi_normalize(res);

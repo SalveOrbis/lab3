@@ -34,9 +34,14 @@ void bi_normalize(bi_t bi) {
     }
 
     free(copy); //kasta bort kopian
-    bi->sign = sign;
+    if( bi->limbs == 1 && bi->value[0] == 0) {
+      bi->sign = 0;
+    }
+    else {
+      bi->sign = sign;
 
   }
+}
   else if (new_length == bi->limbs) {
 
   }
@@ -319,7 +324,7 @@ void bi_uadd(bi_t res, bi_t a, bi_t b) {
   }
 
   if ( min_limbs != max_limbs) { //fallet där ett tal har fler limbs
-    printf("Olika storlek");
+    // printf("Olika storlek"); 
     for (i; i < max_limbs ; i++) {
       res->value[i] = biggest_int->value[i] + carry_over;
       carry_over = check_carry(res->value[i]);
@@ -340,6 +345,19 @@ int check_carry(int limb) {
   } else {
     return 0;
   }
+}
+
+int check_borrow (bi_t a,bi_t b, int i) {
+  printf("a: %d, b: %d \n", a->value[i], b->value[i]);
+  if ( a->value[i] < b->value[i]  && a->limbs > i+1 ) {
+    printf("Låna sig lite\n");
+    return 1;
+
+  }
+  else {
+    return 0;
+  }
+
 }
 
 
@@ -363,6 +381,66 @@ void bi_usub(bi_t res, bi_t a, bi_t b) {
  * than b->value.
  */
 void bi_uabsdiff(bi_t res, bi_t a, bi_t b) {
+
+
+  int min_limbs = MIN(a->limbs, b->limbs);
+  int max_limbs = MAX(a->limbs, b->limbs);
+  int carry_over = 0;
+
+  bi_t biggest_int;
+  bi_init (biggest_int); // ska peka på den som har flest limbs
+
+  if (a->limbs == max_limbs) {
+    bi_set(biggest_int, a);
+  } else {
+    bi_set(biggest_int, b);
+  }
+
+  int i = 0;
+  int borrow = 0 ;
+  int has_borrowed = 0;
+  int resultat = a->value[i]  - b->value[i];
+  for ( i = 1 ; i < max_limbs; ++i)
+  {
+    has_borrowed = check_borrow(a, b, i-1);
+    borrow = (has_borrowed == 1) ? WORDMASK : 0;
+    resultat = a->value[i]  - b->value[i] - has_borrowed;
+    resultat = abs(resultat + borrow);
+    res->value[i] = resultat & WORDMASK;
+  }
+
+  if (max_limbs != min_limbs) {
+    for ( i; i < max_limbs; i++)
+    {
+      res->value[i] = biggest_int->value[i];
+    }
+  }
+
+  if (has_borrowed == 1) {
+    res->value[res->limbs -1] -= 1;
+    res->value[res->limbs -1] &= WORDMASK;
+  }
+
+// TECKENHANTERING
+    if (bi_ucmp(a,b) == 1 ) {
+      if (a->sign == 1) {
+         res->sign = 1;
+      } else {
+        res->sign = -1;
+      }
+  }
+   else if (bi_ucmp(a,b) == 0) {
+    res->sign = 0;
+  } 
+  else if (bi_ucmp(a,b) == -1) {
+    if (a->sign == 1) {
+      res->sign = -1;
+      }
+      else {
+        res->sign = 1;
+      }
+  }
+
 }
 
 /**

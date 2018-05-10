@@ -562,21 +562,17 @@ void eget_test(void) {
 
     //END TESTA CONVERT
 
+
+
+  // HÅRDKODADE VÄRDEN
   int limbs = 2;
   // int bitar = limbs * WORDSIZE;
   bi_resize(a, limbs);
-  // // bi_t b;
-  // // bi_init (b);
-  // bi_resize (b, limbs);
-  // bi_t res;
-  // bi_init(res);
-
-  // HÅRDKODADE VÄRDEN
    a->sign = 1;
-   a->value[0] =  79;
-   a->value[1] =  3;
+   a->value[0] =  0;
+    a->value[1] =  3;
 
-   printf("\nBiten: %d\n", bi_tstbit(a, 26));
+   // printf("\nBiten: %d\n", bi_tstbit(a, 26));
 
   // a->value[2] =  0;
   // a->value[3] =  0;
@@ -601,10 +597,11 @@ void eget_test(void) {
   // // a->value[15] = 0;
   // // a->value[16] = 0;
 
-
-  // b->sign = 1;
-  // b->value[0] = WORDMASK;
-  // b->value[1] = WORDMASK;
+  limbs = 1;
+  bi_resize (b, limbs);
+  b->sign = -1;
+  b->value[0] = 1;
+  // b->value[1] = 1;
   // b->value[2] = 0;
   // b->value[3] = WORDMASK;
   // b->value[4] = WORDMASK;
@@ -624,19 +621,19 @@ void eget_test(void) {
   // b->value[18] = WORDMASK;
   // b->value[19] = WORDMASK;
 
-  // bi_normalize(a);
-  // bi_normalize(b);
-  // printf("\na sign: %d, b sign: %d\n", a->sign, b->sign);
+  bi_normalize(a);
+  bi_normalize(b);
 
-  // //TESTA ADD
-  // printf("\n");
-  // bi_printf(a);
-  // printf(" + ");
-  // bi_printf(b);
-  // bi_add(res,a,b);
-  // printf(" = \n");
-  // bi_printf(res);
-  // printf("\n");
+  //TESTA ADD
+  printf("\n");
+  bi_printf(a);
+  printf(" + ");
+  bi_printf(b);
+  bi_add(res,a,b);
+  printf(" = \n");
+  bi_printf(res);
+  printf("\n");
+  printf("\na sign: %d, b sign: %d  res sign: %d\n", a->sign, b->sign, res->sign);
 
 
 
@@ -714,7 +711,7 @@ void eget_test(void) {
 
 void main(int argc, char **argv) {
   time_t t;
-    eget_test();
+  eget_test();
 
 
   srand((unsigned) time(&t));
