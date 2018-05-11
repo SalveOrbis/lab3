@@ -395,11 +395,8 @@ void bi_usub(bi_t res, bi_t a, bi_t b) {
   for ( i = 0 ; i < min_limbs; i++)
   {
     resultat = a->value[i] - b->value[i] - has_borrowed;
-    printf("resultat: %d\nhas_borrowed: %d\n", resultat, has_borrowed );
     has_borrowed = check_borrow(resultat, a->limbs, i);
-    borrow = (has_borrowed == 1) ? WORDMASK : 0;
-    resultat = resultat + borrow ;
-    printf("resultat: %d\n", resultat );
+    resultat  = (has_borrowed == 1) ? resultat + 1 + WORDMASK : resultat;
     res->value[i] = resultat & WORDMASK;
   }
 
@@ -411,7 +408,6 @@ void bi_usub(bi_t res, bi_t a, bi_t b) {
       has_borrowed = check_borrow(resultat, a->limbs, i);
       borrow = (has_borrowed == 1) ? WORDMASK : 0;
       resultat = resultat + borrow;
-      // printf("resultat: %d\n", resultat );
       res->value[i] = resultat & WORDMASK;
     }
 
@@ -497,5 +493,57 @@ void bi_uabsdiff(bi_t res, bi_t a, bi_t b) {
  * Sets res->value = a->value + b->value * scalar * 2^(shift * WORDSIZE)
  * mod 2^((a->limbs + shift) * WORDSIZE).
  */
-void bi_umuladd(bi_t res, bi_t a, int scalar, int shift) {
+
+// 2^(shift * WORDSIZE) skiftar skift antal bitarna ett ord
+
+
+void bi_umuladd(bi_t res, bi_t a,  int scalar, int shift) {
+
+  int resultat;
+  for (int i = 0  ; i < a->limbs; i++) {
+     resultat = a->value[i] +  scalar * (int)pow(2, shift * WORDSIZE);
+     resultat %= (int) pow(2, (a->limbs + shift) * WORDSIZE); 
+     res->value[i] = resultat;
+  }
+}
+
+void bi_mulen (bi_t res, bi_t a, int b_limb, int shift) {
+  unsigned long long resultat;
+  int i ;
+  int carry = 0;
+  for ( i = 0; i < a->limbs; ++i)
+  {
+    // printf("res-value sen tidigare: %x\n",res->value[i+shift] );
+    resultat =  (unsigned long long)a->value[i] *(unsigned long long) b_limb; // + carry + res->value[i+shift];
+    resultat += (unsigned long long) carry + (unsigned long long)res->value[i+shift];
+    // printf("res: %x \n", resultat);
+    //kolla om vi får en carry till nästa limb
+    carry = mul_carry (resultat); 
+    res->value[i+shift] =  ( resultat & (long long) WORDMASK);
+  }
+
+  if (carry > 0) {
+    res->value[i+shift] = carry;
+  }
+
+}
+
+int mul_carry ( unsigned long long res) {
+
+  // printf("Inne i mul_carry\n");
+  // printf("res: %x \n", res );
+  // long long biggest_word = 0xFFFFFF;
+  unsigned long skiftad = (unsigned long)res >> WORDSIZE; 
+
+  // printf("skiftad: %x \n", skiftad );
+
+  if (skiftad > 0) {
+  // if (res > biggest_word) {
+    // long long  carry =  res >> (long long) WORDSIZE;
+    // printf("\ncarry: %x\n", skiftad);
+    return (int) skiftad;
+  } else {
+    // printf("Det är mindre\n");
+    return 0;
+  }
 }

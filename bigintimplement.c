@@ -384,6 +384,19 @@ void bi_sub(bi_t res, bi_t a, bi_t b) {
  * Sets res = a * b.
  */
 void bi_mul(bi_t res, bi_t a, bi_t b) {
+	int i ;
+	bi_resize(res, a->limbs + b->limbs);
+
+	int b_limb;
+	for (int i = 0; i < b->limbs; ++i)
+	{
+		// printf("\ni : %d \n",i );
+		b_limb = b->value[i];
+		bi_mulen( res, a, b_limb, i) ;
+
+	}
+
+	bi_normalize(res);
 }
 
 /**
@@ -400,6 +413,41 @@ void bi_xor(bi_t res, bi_t a, bi_t b) {
  * operation.
  */
 void bi_and(bi_t res, bi_t a, bi_t b) {
+	int empty_limb = 0;
+	int max_limbs = MAX(a->limbs, b->limbs);
+	int min_limbs = MIN(a->limbs, b->limbs);
+	bi_resize(res, max_limbs);
+
+	//peka på den b_int som har flest limbs
+	// int *bint_mostlimbs ;
+	// if ( a->limbs == max_limbs) {
+	// 	bint_mostlimbs = a->value;
+	// } else if ( b->limbs == max_limbs) {
+	// 	bint_mostlimbs = b->value;
+	// }
+
+	int i = 0;
+	for ( i ; i < min_limbs; i++)
+	{
+		res->value[i] = bi_iand(a->value[i], b->value[i]);
+	}
+
+	if (min_limbs < max_limbs) {
+		if ( a->limbs == max_limbs) {
+			for (i; i < max_limbs; i++) {
+				res->value[i] = bi_iand(a->limbs, empty_limb );
+			}
+		} else if (b->limbs == max_limbs) {
+			for (i; i < max_limbs; i++) {
+				res->value[i] = bi_iand(empty_limb, b->value[i] );
+			}
+		}
+
+	}
+
+	//TECKENHANTERING
+
+	bi_normalize (res);
 }
 
 /**

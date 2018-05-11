@@ -120,3 +120,6 @@ void bi_umuladd(bi_t res, bi_t a, int scalar, int shift);
 int check_carry(int limb);
 
 int check_borrow(int res, int a_limbs, int i);
+
+void bi_mulen (bi_t res, bi_t a, int b_limb, int shift);
+int mul_carry ( unsigned long long  res);
